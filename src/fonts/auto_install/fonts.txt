@@ -1,0 +1,1 @@
+powershell.exe -NoExit -command "& { Set-Location C:/Users/User/OneDrive/Desktop/fonts/src }"

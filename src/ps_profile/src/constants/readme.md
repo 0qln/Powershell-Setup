@@ -1,0 +1,1 @@
+Constants are declared in `.ps1` scripts.
