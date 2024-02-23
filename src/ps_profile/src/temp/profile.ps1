@@ -22,6 +22,21 @@ function Activate-Script {
 }
 
 
+function java-run {
+    param(
+        [string] $project_folder,
+        [string] $main_class
+    )
+
+    Set-Location $project_folder
+    Write-Host "Start compilation"
+    Get-ChildItem -Directory -Recurse | ForEach-Object { $_.FullName + ("\*.java") } | ForEach-Object { javac $_ }
+    Write-Host "Start program"
+    java $main_class
+}
+
+
+
 # fzf wrappers
 function cdf {
     Get-ChildItem . -Recurse 
