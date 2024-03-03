@@ -21,6 +21,35 @@ function Activate-Script {
     }
 }
 
+function jar-run {
+    param(
+        [string] $project_folder,
+        [string] $main_class
+    )
+
+    Set-Location $project_folder
+
+    Write-Host "Compilation (1/2)"
+    Get-ChildItem -Directory -Recurse -Exclude *BlueJ*
+        | ForEach-Object { $_.FullName + ("\*.java") } 
+        | ForEach-Object { javac $_ }
+
+    Write-Host "Compilation (2/2)"
+    $regex_pf = $project_folder -Replace "\\", "\\"
+    $packages = Get-ChildItem -Recurse -Filter *.class 
+        | ForEach-Object { $_.DirectoryName+"\*.class" } 
+        | Sort-Object -Unique
+        | ForEach-Object { $_ -Replace "$regex_pf", '' }
+    Invoke-Expression "jar cfm out.jar manifest.txt $($packages -join ' ')"
+
+    Write-Host "Creating manifest"
+    new-item "manifest.txt" -force > $null
+    set-content -path "manifest.txt" -value "Main-Class: $main_class
+" # Yes, this needs to be on a new line!
+
+    Write-Host "Starting program"
+    java -jar out.jar
+}
 
 function java-run {
     param(
@@ -30,7 +59,9 @@ function java-run {
 
     Set-Location $project_folder
     Write-Host "Start compilation"
-    Get-ChildItem -Directory -Recurse | ForEach-Object { $_.FullName + ("\*.java") } | ForEach-Object { javac $_ }
+    Get-ChildItem -Directory -Recurse 
+        | ForEach-Object { $_.FullName + ("\*.java") } 
+        | ForEach-Object { javac $_ }
     Write-Host "Start program"
     java $main_class
 }
