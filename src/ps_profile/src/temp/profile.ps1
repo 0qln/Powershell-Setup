@@ -1,11 +1,3 @@
-$DESKTOP = "C:\Users\User\OneDrive\Desktop\"
-$PROJECTS = "D:\Programmmieren\Projects" 
-$NVIM = "C:\Users\User\AppData\Local\nvim"
-$STOCK_FISH = "D:\Programmmieren\stockfish_15_win_x64_avx2\stockfish_15_win_x64_avx2/stockfish_15_x64_avx2.exe"
-$WEEVIL_DIR = "D:\Sonstiges\Weevil\"
-
-
-# Define the function to activate the script
 function Activate-Script {
     param(
         [string] $Path
@@ -21,6 +13,28 @@ function Activate-Script {
     }
 }
 
+$setuplocation = (get-item $PSScriptRoot).parent.FullName
+$constlocation = $setuplocation + "/constants/constants.ps1"
+.$constlocation
+
+function cc-bench {
+    param(
+        [string] $engine1,
+        [string] $engine2,
+        [string] $openings,
+        [string] $out
+    )
+
+    &$cute_chess\"cutechess-cli.exe" `
+        -engine cmd=$engine1 `
+        -engine cmd=$engine2 `
+        -each proto=uci tc=40/40 `
+        -rounds 20 `
+        -concurrency 4 `
+        -openings $openings `
+        -pgnout $out
+}
+
 function jar-run {
     param(
         [string] $project_folder,
@@ -30,9 +44,12 @@ function jar-run {
     Set-Location $project_folder
 
     Write-Host "Compilation (1/2)"
-    Get-ChildItem -Directory -Recurse -Exclude *BlueJ*
+    $items = Get-ChildItem -Directory -Recurse -Exclude *BlueJ* , .*
         | ForEach-Object { $_.FullName + ("\*.java") } 
-        | ForEach-Object { javac $_ }
+    foreach ($item in $items) {
+        Write-Host $item
+        javac $item
+    }
 
     Write-Host "Compilation (2/2)"
     $regex_pf = $project_folder -Replace "\\", "\\"
