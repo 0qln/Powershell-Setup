@@ -13,6 +13,14 @@ function Activate-Script {
     }
 }
 
+function Set-Autostart {
+    param (
+        [string] $filename
+    )
+    
+    Copy-Item $filename -Destination "C:\Users\User\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
+}
+
 $setuplocation = (get-item $PSScriptRoot).parent.FullName
 $constlocation = $setuplocation + "/constants/constants.ps1"
 .$constlocation
