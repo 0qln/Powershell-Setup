@@ -59,18 +59,19 @@ function jar-run {
         javac $item
     }
 
-    Write-Host "Compilation (2/2)"
-    $regex_pf = $project_folder -Replace "\\", "\\"
-    $packages = Get-ChildItem -Recurse -Filter *.class 
-        | ForEach-Object { $_.DirectoryName+"\*.class" } 
-        | Sort-Object -Unique
-        | ForEach-Object { $_ -Replace "$regex_pf", '' }
-    Invoke-Expression "jar cfm out.jar manifest.txt $($packages -join ' ')"
-
     Write-Host "Creating manifest"
     new-item "manifest.txt" -force > $null
     set-content -path "manifest.txt" -value "Main-Class: $main_class
 " # Yes, this needs to be on a new line!
+
+    Write-Host "Compilation (2/2)"
+    # $regex_pf = $project_folder -Replace "\\", "\\"
+    # $packages = Get-ChildItem -Recurse -Filter *.class 
+    #     | ForEach-Object { $_.DirectoryName+"\*.class" } 
+    #     | Sort-Object -Unique
+    #     | ForEach-Object { $_ -Replace "$regex_pf", '' }
+    # Invoke-Expression "jar cfm out.jar manifest.txt $($packages -join ' ')"
+    Invoke-Expression "jar --create --file out.jar --manifest manifest.txt -C $project_folder ."
 
     Write-Host "Starting program"
     java -jar out.jar
