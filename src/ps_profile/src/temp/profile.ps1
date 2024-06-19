@@ -52,11 +52,16 @@ function jar-run {
     Set-Location $project_folder
 
     Write-Host "Compilation (1/2)"
-    $items = Get-ChildItem -Directory -Recurse -Exclude *BlueJ* , .*
+
+    $items = Get-ChildItem -Directory -Path $project_folder -Exclude packages , .vscode
         | ForEach-Object { $_.FullName + ("\*.java") } 
+
+    $packages = Get-ChildItem -Path "$project_folder\packages" -Recurse -Name 
+        | ForEach-Object { ";packages\$_" }
+
     foreach ($item in $items) {
         Write-Host $item
-        javac $item
+        javac -cp ".$packages" $item
     }
 
     Write-Host "Creating manifest"
