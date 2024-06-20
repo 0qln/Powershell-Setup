@@ -51,35 +51,30 @@ function jar-run {
 
     Set-Location $project_folder
 
-    Write-Host "Compilation (1/2)"
+    Write-Host "Packages found: "
+    $packages = Get-ChildItem -Path "$project_folder\packages" -Recurse -Name 
+        | ForEach-Object { "packages\$_" }
+    foreach ($package in $packages) {
+        Write-Host $package
+    }
 
+    Write-Host "Compilation (1/2)"
     $items = Get-ChildItem -Directory -Path $project_folder -Exclude packages , .vscode
         | ForEach-Object { $_.FullName + ("\*.java") } 
-
-    $packages = Get-ChildItem -Path "$project_folder\packages" -Recurse -Name 
-        | ForEach-Object { ";packages\$_" }
-
     foreach ($item in $items) {
         Write-Host $item
-        javac -cp ".$packages" $item
+        javac -cp ".;$($packages -join ';')" $item
     }
 
     Write-Host "Creating manifest"
     new-item "manifest.txt" -force > $null
-    set-content -path "manifest.txt" -value "Main-Class: $main_class
-" # Yes, this needs to be on a new line!
+    set-content -path "manifest.txt" -value "Main-Class: $main_class`r`n"
 
     Write-Host "Compilation (2/2)"
-    # $regex_pf = $project_folder -Replace "\\", "\\"
-    # $packages = Get-ChildItem -Recurse -Filter *.class 
-    #     | ForEach-Object { $_.DirectoryName+"\*.class" } 
-    #     | Sort-Object -Unique
-    #     | ForEach-Object { $_ -Replace "$regex_pf", '' }
-    # Invoke-Expression "jar cfm out.jar manifest.txt $($packages -join ' ')"
-    Invoke-Expression "jar --create --file out.jar --manifest manifest.txt -C $project_folder ."
+    Invoke-Expression "jar --create --file out.jar --manifest manifest.txt -C $project_folder ." 
 
     Write-Host "Starting program"
-    java -jar out.jar
+    java -cp ".;$($packages -join ';')" -jar out.jar
 }
 
 function java-run {
@@ -88,13 +83,25 @@ function java-run {
         [string] $main_class
     )
 
+    Write-Host "Packages found: "
+    $packages = Get-ChildItem -Path "$project_folder\packages" -Recurse -Name 
+        | ForEach-Object { "packages\$_" }
+    foreach ($package in $packages) {
+        Write-Host $package
+    }
+
     Set-Location $project_folder
+
     Write-Host "Start compilation"
-    Get-ChildItem -Directory -Recurse 
+    $items = Get-ChildItem -Directory -Path $project_folder -Exclude packages , .vscode
         | ForEach-Object { $_.FullName + ("\*.java") } 
-        | ForEach-Object { javac $_ }
+    foreach ($item in $items) {
+        Write-Host $item
+        javac -cp ".;$($packages -join ';')" $item
+    }
+
     Write-Host "Start program"
-    java $main_class
+    java -cp ".;$($packages -join ';')" $main_class
 }
 
 
