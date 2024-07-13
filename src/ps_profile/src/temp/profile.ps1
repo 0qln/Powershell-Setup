@@ -52,15 +52,13 @@ function jar-run {
     Set-Location $project_folder
 
     Write-Host "Packages found: "
-    $packages = Get-ChildItem -Path "$project_folder\packages" -Recurse -Name 
-        | ForEach-Object { "packages\$_" }
+    $packages = Get-ChildItem -Path "$project_folder\packages" -Recurse -Name | ForEach-Object { "packages\$_" }
     foreach ($package in $packages) {
         Write-Host $package
     }
 
     Write-Host "Compilation (1/2)"
-    $items = Get-ChildItem -Directory -Path $project_folder -Exclude packages , .vscode
-        | ForEach-Object { $_.FullName + ("\*.java") } 
+    $items = Get-ChildItem -Directory -Path $project_folder -Exclude packages , .vscode | ForEach-Object { $_.FullName + ("\*.java") } 
     foreach ($item in $items) {
         Write-Host $item
         javac -cp ".;$($packages -join ';')" $item
@@ -84,8 +82,7 @@ function java-run {
     )
 
     Write-Host "Packages found: "
-    $packages = Get-ChildItem -Path "$project_folder\packages" -Recurse -Name 
-        | ForEach-Object { "packages\$_" }
+    $packages = Get-ChildItem -Path "$project_folder\packages" -Recurse -Name | ForEach-Object { "packages\$_" }
     foreach ($package in $packages) {
         Write-Host $package
     }
@@ -93,8 +90,7 @@ function java-run {
     Set-Location $project_folder
 
     Write-Host "Start compilation"
-    $items = Get-ChildItem -Directory -Path $project_folder -Exclude packages , .vscode
-        | ForEach-Object { $_.FullName + ("\*.java") } 
+    $items = Get-ChildItem -Directory -Path $project_folder -Exclude packages , .vscode | ForEach-Object { $_.FullName + ("\*.java") } 
     foreach ($item in $items) {
         Write-Host $item
         javac -cp ".;$($packages -join ';')" $item
@@ -108,27 +104,19 @@ function java-run {
 
 # fzf wrappers
 function cdf {
-    Get-ChildItem . -Recurse 
-    | Invoke-Fzf 
-    | Set-Location
+    Get-ChildItem . -Recurse | Invoke-Fzf | Set-Location
 }
 
 function cdfnr { # cd, no recurse
-    Get-ChildItem . 
-    | Invoke-Fzf 
-    | Set-Location
+    Get-ChildItem . | Invoke-Fzf | Set-Location
 }
 
 function nvimf {
-    Get-ChildItem . -Recurse 
-    | Invoke-Fzf 
-    | % { nvim $_ }
+    Get-ChildItem . -Recurse | Invoke-Fzf | % { nvim $_ }
 }
 
 function echof {
-    Get-ChildItem . -Recurse 
-    | Invoke-Fzf 
-    | echo 
+    Get-ChildItem . -Recurse | Invoke-Fzf | echo 
 }
 
 
@@ -154,7 +142,7 @@ function Open-Weevil {
 
 # Open latest weevil version
 function Weevil {	
-	$versions = Get-ChildItem -Path $WEEVIL_DIR -Directory -Exclude "music_cache"
+	$versions = Get-ChildItem -Path $WEEVIL_DIR -Directory -Exclude "music_cache", "src"
 	
 	if ($versions.Count -eq 0) {
 		Write-Host "No version folders found in '$WEEVIL_DIR'"
@@ -179,7 +167,7 @@ function Update-Weevil {
         [string] $part = "minor"
     )
 
-    $versions = Get-ChildItem -Path $WEEVIL_DIR -Directory -Exclude "music_cache"
+    $versions = Get-ChildItem -Path $WEEVIL_DIR -Directory -Exclude "music_cache", "src"
 	
     $newVersion = 
         If ($versions.Count -eq 0) { 
@@ -195,10 +183,10 @@ function Update-Weevil {
         param(
             [string] $File
         )
-        return $File -like "*.py" ` -or $File -like "*help.txt"
+        return $File -like "*.py" ` -or $File -like "*.txt"
     }
 
-    Copy-Files -SourceFolder "$PROJECTS\weevil\v0\" -DestinationFolder "$WEEVIL_DIR\$newVersion\src\" -Predicate { Do-Copy -$File $_ }
+    Copy-Files -SourceFolder $WEEVIL_SRC -DestinationFolder "$WEEVIL_DIR\$newVersion\src\" -Predicate { Do-Copy -$File $_ }
 }
 
 
