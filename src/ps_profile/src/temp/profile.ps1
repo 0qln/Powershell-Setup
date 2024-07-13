@@ -25,6 +25,10 @@ $setuplocation = (get-item $PSScriptRoot).parent.FullName
 $constlocation = $setuplocation + "/constants/constants.ps1"
 .$constlocation
 
+function internet-test {
+    irm asheroto.com/speedtest | iex
+}
+
 function cc-bench {
     param(
         [string] $engine1,
