@@ -111,6 +111,12 @@ function java-run {
 
 
 # fzf wrappers
+function fzx {
+    Get-ChildItem . -Recurse 
+    | Invoke-Fzf 
+    | % { iex $_ }
+}
+
 function cdf {
     Get-ChildItem . -Recurse 
     | Invoke-Fzf 
