@@ -13,15 +13,6 @@ function Activate-Script {
     }
 }
 
-function Set-Autostart {
-    param (
-        [string] $filename,
-        [string] $user
-    )
-    
-    Copy-Item $filename -Destination "C:\Users\$user\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
-}
-
 $setuplocation = (get-item $PSScriptRoot).parent.FullName
 $constlocation = $setuplocation + "/constants/constants.ps1"
 .$constlocation
@@ -42,7 +33,7 @@ function cc-bench {
         -engine cmd=$engine1 `
         -engine cmd=$engine2 `
         -each proto=uci tc=40/40 `
-        -rounds 20 `
+        -rounds 500 `
         -concurrency 4 `
         -openings $openings `
         -pgnout $out
